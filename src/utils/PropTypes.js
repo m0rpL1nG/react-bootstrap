@@ -1,5 +1,4 @@
 import PropTypes from 'prop-types';
-import React from 'react';
 import createChainableTypeChecker
   from 'react-prop-types/lib/utils/createChainableTypeChecker';
 
