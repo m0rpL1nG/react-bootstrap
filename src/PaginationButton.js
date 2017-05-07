@@ -1,84 +1,65 @@
-import classNames from 'classnames';
+
 import React from 'react';
-import PropTypes from 'prop-types';
+import classNames from 'classnames';
+import createSelectedEvent from './utils/createSelectedEvent';
 import elementType from 'react-prop-types/lib/elementType';
 
-import SafeAnchor from './SafeAnchor';
-import createChainedFunction from './utils/createChainedFunction';
+const PaginationButton = React.createClass({
 
-// TODO: This should be `<Pagination.Item>`.
+  propTypes: {
+    className: React.PropTypes.string,
+    eventKey: React.PropTypes.oneOfType([
+      React.PropTypes.string,
+      React.PropTypes.number
+    ]),
+    onSelect: React.PropTypes.func,
+    disabled: React.PropTypes.bool,
+    active: React.PropTypes.bool,
+    /**
+     * You can use a custom element for this component
+     */
+    buttonComponentClass: elementType
+  },
 
-// TODO: This should use `componentClass` like other components.
-
-const propTypes = {
-  componentClass: elementType,
-  className: PropTypes.string,
-  eventKey: PropTypes.any,
-  onSelect: PropTypes.func,
-  disabled: PropTypes.bool,
-  active: PropTypes.bool,
-  onClick: PropTypes.func,
-};
-
-const defaultProps = {
-  componentClass: SafeAnchor,
-  active: false,
-  disabled: false
-};
-
-class PaginationButton extends React.Component {
-  constructor(props, context) {
-    super(props, context);
-
-    this.handleClick = this.handleClick.bind(this);
-  }
+  getDefaultProps() {
+    return {
+      active: false,
+      disabled: false
+    };
+  },
 
   handleClick(event) {
-    const { disabled, onSelect, eventKey } = this.props;
-
-    if (disabled) {
+    if (this.props.disabled) {
       return;
     }
 
-    if (onSelect) {
-      onSelect(eventKey, event);
+    if (this.props.onSelect) {
+      let selectedEvent = createSelectedEvent(this.props.eventKey);
+      this.props.onSelect(event, selectedEvent);
     }
-  }
+  },
 
   render() {
-    const {
-      componentClass: Component,
-      active,
-      disabled,
-      onClick,
+    let classes = {
+      active: this.props.active,
+      disabled: this.props.disabled
+    };
+
+    let {
       className,
-      style,
-      ...props
+      ...anchorProps
     } = this.props;
 
-    if (Component === SafeAnchor) {
-      // Assume that custom components want `eventKey`.
-      delete props.eventKey;
-    }
-
-    delete props.onSelect;
+    let ButtonComponentClass = this.props.buttonComponentClass;
 
     return (
-      <li
-        className={classNames(className, { active, disabled })}
-        style={style}
-      >
-        <Component
-          {...props}
-          disabled={disabled}
-          onClick={createChainedFunction(onClick, this.handleClick)}
-        />
+      <li className={classNames(className, classes)}>
+        <ButtonComponentClass
+          {...anchorProps}
+          onClick={this.handleClick} />
       </li>
     );
   }
-}
-
-PaginationButton.propTypes = propTypes;
-PaginationButton.defaultProps = defaultProps;
+});
 
 export default PaginationButton;
